@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create a raw disk image
+        run: |
+          dd if=/dev/zero of=simple-alpine.img bs=8M count=16
+          (echo "start=2048, size=100MiB, type=c, bootable"; echo "type=83") | sfdisk simple-alpine.img
+          fdisk -l simple-alpine.img
+
+          mkfs.vfat -v -h 2048 simple-alpine.img $((100*1024*1024/1024))
+          mkfs.ext4 -E offset=$((512*(2048+100*1024*1024/512))) simple-alpine.img
+
+      - name: Upload the disk image
+        uses: actions/upload-artifact@v2
+        with:
+          name: "simple-alpine.img"
+          path: "simple-alpine.img"
