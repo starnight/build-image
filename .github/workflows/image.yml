@@ -18,6 +18,28 @@ jobs:
           mkfs.vfat -v -h 2048 simple-alpine.img $((100*1024*1024/1024))
           mkfs.ext4 -E offset=$((512*(2048+100*1024*1024/512))) simple-alpine.img
 
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Make target folder
+        run: |
+          mkdir target
+
+      - name: Have aarch64 environment
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: aarch64
+          distro: alpine_latest
+          run: |
+            uname -a
+            cat /etc/os-release
+            ls -l
+            touch target/dummy
+
+      - name: Check the target
+        run: |
+          ls -l target/
+
       - name: Upload the disk image
         uses: actions/upload-artifact@v2
         with:
