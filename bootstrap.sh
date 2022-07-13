@@ -12,3 +12,15 @@ apk.static \
   --allow-untrusted \
   --root $ROOT_TARGET \
   --initdb add alpine-base
+
+echo "Deploy fstab"
+install -D data/fstab $ROOT_TARGET/etc/fstab
+mkdir $ROOT_TARGET/boot
+
+echo "Deploy network config"
+install -D data/network/interfaces $ROOT_TARGET/etc/network/interfaces
+
+echo "alpine-arm64" > $ROOT_TARGET/etc/hostname
+
+echo "Change Root"
+chroot $ROOT_TARGET rc-update add networking
