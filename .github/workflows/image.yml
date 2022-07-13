@@ -9,6 +9,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Create a raw disk image
         shell: bash
         run: |
@@ -39,16 +42,8 @@ jobs:
           distro: alpine_latest
           run: |
             uname -a
-            cat /etc/os-release
-
-            apk add apk-tools-static
-            apk.static \
-              --arch $(uname -m) \
-              -X http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/ \
-              -U \
-              --allow-untrusted \
-              --root target/ \
-              --initdb add alpine-base
+            ls -l
+            sh bootstrap.sh target
 
       - name: Unmount image
         run: |
