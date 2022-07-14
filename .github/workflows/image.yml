@@ -12,9 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Define disk image name
+      - name: Define disk image name and target Root directory
         run: |
           echo "DISK_IMG=simple-alpine_aarch64.img" >> $GITHUB_ENV
+
+          mkdir target
+          echo "ROOT_TARGET=target" >> $GITHUB_ENV
 
       - name: Create a raw disk image
         shell: bash
@@ -36,8 +39,7 @@ jobs:
           sudo mkfs.vfat -v ${boot}
           sudo mkfs.ext4 ${root}
 
-          mkdir target
-          sudo mount -t ext4 ${root} target
+          sudo mount -t ext4 ${root} ${{ env.ROOT_TARGET }}
 
       - name: Have aarch64 environment
         uses: uraimo/run-on-arch-action@v2
@@ -47,12 +49,12 @@ jobs:
           run: |
             uname -a
             ls -l
-            sh bootstrap.sh target
+            sh bootstrap.sh ${{ env.ROOT_TARGET }}
 
       - name: Unmount image
         run: |
-          ls -l target/
-          sudo umount target
+          ls -l ${{ env.ROOT_TARGET }}
+          sudo umount ${{ env.ROOT_TARGET }}
 
       - name: Upload the disk image
         uses: actions/upload-artifact@v2
