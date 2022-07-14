@@ -12,14 +12,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Define disk image name
+        run: |
+          echo "DISK_IMG=simple-alpine_aarch64.img" >> $GITHUB_ENV
+
       - name: Create a raw disk image
         shell: bash
         run: |
-          dd if=/dev/zero of=simple-alpine.img bs=8M count=16
-          (echo "start=2048, size=100MiB, type=c, bootable"; echo "type=83") | sfdisk simple-alpine.img
+          dd if=/dev/zero of=${{ env.DISK_IMG }} bs=8M count=16
+          (echo "start=2048, size=100MiB, type=c, bootable"; echo "type=83") | sfdisk ${{ env.DISK_IMG }}
 
           # https://github.com/damianperera/mount-image-action/blob/v1/action.yml#L36
-          kpartx="$(sudo kpartx -avs simple-alpine.img)" || echo 1>&2 "ERROR: could not create loop devices for image"
+          kpartx="$(sudo kpartx -avs ${{ env.DISK_IMG }})" || echo 1>&2 "ERROR: could not create loop devices for image"
           echo $kpartx
           blockDevices=($(grep -o 'loop.p.' <<<"$kpartx"))
           sleep 0.5
@@ -53,5 +57,5 @@ jobs:
       - name: Upload the disk image
         uses: actions/upload-artifact@v2
         with:
-          name: "simple-alpine.img"
-          path: "simple-alpine.img"
+          name: ${{ env.DISK_IMG }}
+          path: ${{ env.DISK_IMG }}
