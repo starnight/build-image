@@ -7,17 +7,13 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DISK_IMG: "simple-alpine_aarch64.img"
+      ROOT_TARGET: "target"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      - name: Define disk image name and target Root directory
-        run: |
-          echo "DISK_IMG=simple-alpine_aarch64.img" >> $GITHUB_ENV
-
-          mkdir target
-          echo "ROOT_TARGET=target" >> $GITHUB_ENV
 
       - name: Create a raw disk image
         shell: bash
@@ -39,6 +35,7 @@ jobs:
           sudo mkfs.vfat -v ${boot}
           sudo mkfs.ext4 ${root}
 
+          mkdir ${{ env.ROOT_TARGET }}
           sudo mount -t ext4 ${root} ${{ env.ROOT_TARGET }}
 
       - name: Have aarch64 environment
