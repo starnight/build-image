@@ -58,3 +58,16 @@ jobs:
         with:
           name: ${{ env.DISK_IMG }}
           path: ${{ env.DISK_IMG }}
+
+      - name: Calculate hash
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          sha512sum ${{ env.DISK_IMG }} > ${{ env.DISK_IMG }}.sha512
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ${{ env.DISK_IMG }}
+            ${{ env.DISK_IMG }}.sha512
