@@ -5,16 +5,50 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_root:
     runs-on: ubuntu-latest
     env:
-      DISK_IMG: "simple-alpine_aarch64.img"
       ROOT_TARGET: "target"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Create a folder as the root taget path
+        run: |
+          mkdir ${{ env.ROOT_TARGET }}
+
+      - name: Have aarch64 environment
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: aarch64
+          distro: alpine_latest
+          run: |
+            uname -a
+            ls -l
+            sh bootstrap.sh ${{ env.ROOT_TARGET }}
+
+      - name: Package the built root
+        working-directory: ${{ env.ROOT_TARGET }}
+        run: |
+          sudo tar zcf ../rootfs-aarch64.tar.gz *
+          sudo chmod a+r ../rootfs-aarch64.tar.gz
+
+      - name: Upload compressed root file system
+        uses: actions/upload-artifact@v2
+        with:
+          name: rootfs-aarch64.tar.gz
+          path: rootfs-aarch64.tar.gz
+
+  build_qemu_image:
+    needs: build_root
+    runs-on: ubuntu-latest
+    env:
+      ROOTFS_TARBALL: "rootfs-aarch64.tar.gz"
+      DISK_IMG: "simple-alpine-qemu_aarch64.img"
+      ROOT_TARGET: "target"
+
+    steps:
       - name: Create a raw disk image
         shell: bash
         run: |
@@ -38,15 +72,15 @@ jobs:
           mkdir ${{ env.ROOT_TARGET }}
           sudo mount -t ext4 ${root} ${{ env.ROOT_TARGET }}
 
-      - name: Have aarch64 environment
-        uses: uraimo/run-on-arch-action@v2
+      - name: Download the root file system tarball
+        uses: actions/download-artifact@v3
         with:
-          arch: aarch64
-          distro: alpine_latest
-          run: |
-            uname -a
-            ls -l
-            sh bootstrap.sh ${{ env.ROOT_TARGET }}
+          name: ${{ env.ROOTFS_TARBALL }}
+
+      - name: Deploy the root file system into the root partition
+        working-directory: ${{ env.ROOT_TARGET }}
+        run: |
+          sudo tar zxf ../${{ env.ROOTFS_TARBALL }}
 
       - name: Unmount image
         run: |
@@ -54,6 +88,7 @@ jobs:
           sudo umount ${{ env.ROOT_TARGET }}
 
       - name: Upload the disk image
+        if: startsWith(github.ref, 'refs/tags/') == false
         uses: actions/upload-artifact@v2
         with:
           name: ${{ env.DISK_IMG }}
