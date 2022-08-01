@@ -44,9 +44,12 @@ jobs:
     needs: build_root
     runs-on: ubuntu-latest
     env:
-      ROOTFS_TARBALL: "rootfs-aarch64.tar.gz"
       DISK_IMG: "simple-alpine-qemu_aarch64.img"
+      ROOTFS_TARBALL: "rootfs-aarch64.tar.gz"
       ROOT_TARGET: "target"
+      KERNEL_URL: "https://github.com/starnight/build-kernel/releases/download/v5.18.14-1/kernel-aarch64.tar.gz"
+      KERNEL_TARBALL: "kernel-aarch64.tar.gz"
+      BOOT_TARGET: "target/boot"
 
     steps:
       - name: Create a raw disk image
@@ -71,6 +74,8 @@ jobs:
 
           mkdir ${{ env.ROOT_TARGET }}
           sudo mount -t ext4 ${root} ${{ env.ROOT_TARGET }}
+          sudo mkdir ${{ env.BOOT_TARGET }}
+          sudo mount -t vfat ${boot} ${{ env.BOOT_TARGET }}
 
       - name: Download the root file system tarball
         uses: actions/download-artifact@v3
@@ -82,9 +87,20 @@ jobs:
         run: |
           sudo tar zxf ../${{ env.ROOTFS_TARBALL }}
 
+      - name: Download the kernel tarball
+        run: |
+          curl -L ${{ env.KERNEL_URL }} -o ${{ env.KERNEL_TARBALL }}
+
+      - name: Deploy the kernel into the root file system
+        working-directory: ${{ env.ROOT_TARGET }}
+        run: |
+          sudo tar zxf ../${{ env.KERNEL_TARBALL }}
+
       - name: Unmount image
         run: |
           ls -l ${{ env.ROOT_TARGET }}
+          ls -l ${{ env.BOOT_TARGET }}
+          sudo umount ${{ env.BOOT_TARGET }}
           sudo umount ${{ env.ROOT_TARGET }}
 
       - name: Upload the disk image
