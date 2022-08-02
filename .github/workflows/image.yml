@@ -40,11 +40,14 @@ jobs:
           name: rootfs-aarch64.tar.gz
           path: rootfs-aarch64.tar.gz
 
-  build_qemu_image:
+  build_image:
     needs: build_root
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        platform: [qemu]
     env:
-      DISK_IMG: "simple-alpine-qemu_aarch64.img"
+      DISK_IMG: "simple-alpine-${{ matrix.platform }}_aarch64.img"
       ROOTFS_TARBALL: "rootfs-aarch64.tar.gz"
       ROOT_TARGET: "target"
       KERNEL_URL: "https://github.com/starnight/build-kernel/releases/download/v5.18.15-1/kernel-aarch64.tar.gz"
