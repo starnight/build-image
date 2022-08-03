@@ -45,16 +45,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [qemu]
+        platform: [qemu, rpi]
     env:
       DISK_IMG: "simple-alpine-${{ matrix.platform }}_aarch64.img"
       ROOTFS_TARBALL: "rootfs-aarch64.tar.gz"
       ROOT_TARGET: "target"
-      KERNEL_URL: "https://github.com/starnight/build-kernel/releases/download/v5.18.15-1/kernel-aarch64.tar.gz"
+      KERNEL_URL: "https://github.com/starnight/build-kernel/releases/download/v5.18.15-2/kernel-aarch64.tar.gz"
       KERNEL_TARBALL: "kernel-aarch64.tar.gz"
       BOOT_TARGET: "target/boot"
+      RPI_VERSION: "1.20220331"
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Create a raw disk image
         shell: bash
         run: |
@@ -90,14 +94,53 @@ jobs:
         run: |
           sudo tar zxf ../${{ env.ROOTFS_TARBALL }}
 
+      - name: Customize for file system on MMC storage
+        if: ${{ matrix.platform != 'qemu' }}
+        working-directory: ${{ env.ROOT_TARGET }}
+        run: |
+          PATTERN="\/dev\/vda"
+          REPLACE="\/dev\/mmcblk0p"
+          sudo sed -i "s/$PATTERN/$REPLACE/g" etc/fstab
+
+      - name: Customize console on Raspberry Pi
+        if: ${{ matrix.platform == 'rpi' }}
+        working-directory: ${{ env.ROOT_TARGET }}
+        run: |
+          PATTERN="::respawn:\/sbin\/getty 38400 tty[0-9]*"
+          REPLACE="::respawn:\/bin\/login"
+          sudo sed -i "s/$PATTERN/$REPLACE/g" etc/inittab
+
+          PATTERN="ttyAMA0::respawn:\/sbin\/getty -L 0 ttyAMA0 vt100"
+          REPLACE="ttyS1::respawn:\/sbin\/getty -L ttyS1 115200 vt100"
+          sudo sed -i "s/$PATTERN/$REPLACE/g" etc/inittab
+
       - name: Download the kernel tarball
         run: |
           curl -L ${{ env.KERNEL_URL }} -o ${{ env.KERNEL_TARBALL }}
 
       - name: Deploy the kernel into the root file system
+        if: ${{ matrix.platform == 'rpi' }}
         working-directory: ${{ env.ROOT_TARGET }}
         run: |
           sudo tar zxf ../${{ env.KERNEL_TARBALL }}
+          sudo mkdir -p boot/upstream
+          sudo mv boot/{config*,System.map*} boot/upstream/
+          sudo mv boot/vmlinuz* boot/upstream/kernel8.img
+          sudo mv boot/dtbs/*/broadcom/* boot/upstream/
+          sudo rm -rf boot/dtbs
+
+      - name: Download and deploy firmwares from Raspberry Pi
+        if: ${{ matrix.platform == 'rpi' }}
+        env:
+          RPI_URL: "https://github.com/raspberrypi/firmware/archive/refs/tags/${{ env.RPI_VERSION }}.tar.gz"
+          RPI_FIRWARE_TARGET: "firmware-${{ env.RPI_VERSION }}"
+        run: |
+          curl -L ${{ env.RPI_URL }} -o ${{ env.RPI_FIRWARE }}.tar.gz
+          tar zxf ${{ env.RPI_FIRWARE }}.tar.gz
+          rm -rf ${{ env.RPI_FIRWARE_TARGET }}/boot/{overlays,*.dtb,kernel*}
+          sudo cp ${{ env.RPI_FIRWARE_TARGET }}/boot/* ${{ env.BOOT_TARGET }}/
+
+          sudo cp data/rpi/* ${{ env.BOOT_TARGET }}/
 
       - name: Unmount image
         run: |
