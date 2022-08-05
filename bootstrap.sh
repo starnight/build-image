@@ -26,4 +26,6 @@ install -D data/network/interfaces $ROOT_TARGET/etc/network/interfaces
 echo "alpine-arm64" > $ROOT_TARGET/etc/hostname
 
 echo "Change Root"
+chroot $ROOT_TARGET rc-update add syslog boot
 chroot $ROOT_TARGET rc-update add networking
+chroot $ROOT_TARGET rc-update add ntpd
