@@ -1,1 +1,1 @@
-console=ttyS1,115200 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait loglevel=6 raid=noautodetect
+console=ttyS1,115200 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 rw rootwait loglevel=6 raid=noautodetect
