@@ -50,7 +50,7 @@ jobs:
       DISK_IMG: "simple-alpine-${{ matrix.platform }}_aarch64.img"
       ROOTFS_TARBALL: "rootfs-aarch64.tar.gz"
       ROOT_TARGET: "target"
-      KERNEL_URL: "https://github.com/starnight/build-kernel/releases/download/v5.18.15-2/kernel-aarch64.tar.gz"
+      KERNEL_URL: "https://github.com/starnight/build-kernel/releases/download/v5.18.16-1/kernel-aarch64.tar.gz"
       KERNEL_TARBALL: "kernel-aarch64.tar.gz"
       BOOT_TARGET: "target/boot"
       RPI_VERSION: "1.20220331"
