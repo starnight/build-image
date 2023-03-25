@@ -7,6 +7,9 @@ on:
 jobs:
   build_root:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [aarch64, riscv64]
     env:
       ROOT_TARGET: "target"
 
@@ -18,10 +21,10 @@ jobs:
         run: |
           mkdir ${{ env.ROOT_TARGET }}
 
-      - name: Have aarch64 environment
+      - name: Have ${{ matrix.arch }} environment
         uses: uraimo/run-on-arch-action@v2
         with:
-          arch: aarch64
+          arch: ${{ matrix.arch }}
           distro: alpine_latest
           run: |
             uname -a
@@ -31,29 +34,32 @@ jobs:
       - name: Package the built root
         working-directory: ${{ env.ROOT_TARGET }}
         run: |
-          sudo tar zcf ../rootfs-aarch64.tar.gz *
-          sudo chmod a+r ../rootfs-aarch64.tar.gz
+          sudo tar zcf ../rootfs-${{ matrix.arch }}.tar.gz *
+          sudo chmod a+r ../rootfs-${{ matrix.arch }}.tar.gz
 
       - name: Upload compressed root file system
         uses: actions/upload-artifact@v3
         with:
-          name: rootfs-aarch64.tar.gz
-          path: rootfs-aarch64.tar.gz
+          name: rootfs-${{ matrix.arch }}.tar.gz
+          path: rootfs-${{ matrix.arch }}.tar.gz
 
   build_image:
     needs: build_root
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        platform: [qemu, rpi]
+        arch: [aarch64, riscv64]
+        platform: [qemu]
+        include:
+          - arch: aarch64
+            platform: rpi
     env:
-      DISK_IMG: "simple-alpine-${{ matrix.platform }}_aarch64.img"
-      ROOTFS_TARBALL: "rootfs-aarch64.tar.gz"
+      DISK_IMG: "simple-alpine-${{ matrix.platform }}_${{ matrix.arch }}.img"
+      ROOTFS_TARBALL: "rootfs-${{ matrix.arch }}.tar.gz"
       ROOT_TARGET: "target"
-      KERNEL_VERSION: "v6.2.8-1"
-      KERNEL_TARBALL: "kernel-aarch64.tar.gz"
+      KERNEL_VERSION: "v6.2.8-2"
+      KERNEL_TARBALL: "kernel-${{ matrix.arch }}.tar.gz"
       BOOT_TARGET: "target/boot"
-      RPI_VERSION: "1.20230317"
 
     steps:
       - name: Checkout
@@ -134,13 +140,15 @@ jobs:
       - name: Download and deploy firmwares from Raspberry Pi
         if: ${{ matrix.platform == 'rpi' }}
         env:
-          RPI_URL: "https://github.com/raspberrypi/firmware/archive/refs/tags/${{ env.RPI_VERSION }}.tar.gz"
-          RPI_FIRWARE_TARGET: "firmware-${{ env.RPI_VERSION }}"
+          RPI_VERSION: "1.20230317"
         run: |
-          curl -L ${{ env.RPI_URL }} -o ${{ env.RPI_FIRWARE }}.tar.gz
-          tar zxf ${{ env.RPI_FIRWARE }}.tar.gz
-          rm -rf ${{ env.RPI_FIRWARE_TARGET }}/boot/{overlays,*.dtb,kernel*}
-          sudo cp ${{ env.RPI_FIRWARE_TARGET }}/boot/* ${{ env.BOOT_TARGET }}/
+          RPI_URL="https://github.com/raspberrypi/firmware/archive/refs/tags/${{ env.RPI_VERSION }}.tar.gz"
+          RPI_FIRWARE_TARGET=firmware-${{ env.RPI_VERSION }}
+
+          curl -L ${RPI_URL} -o ${RPI_FIRWARE}.tar.gz
+          tar zxf ${RPI_FIRWARE}.tar.gz
+          rm -rf ${RPI_FIRWARE_TARGET}/boot/{overlays,*.dtb,kernel*}
+          sudo cp ${RPI_FIRWARE_TARGET}/boot/* ${{ env.BOOT_TARGET }}/
 
           sudo cp data/rpi/* ${{ env.BOOT_TARGET }}/
 
