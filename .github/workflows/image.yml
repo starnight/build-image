@@ -50,7 +50,7 @@ jobs:
       DISK_IMG: "simple-alpine-${{ matrix.platform }}_aarch64.img"
       ROOTFS_TARBALL: "rootfs-aarch64.tar.gz"
       ROOT_TARGET: "target"
-      KERNEL_VERSION: "v5.18.16-1"
+      KERNEL_VERSION: "v6.2.8-1"
       KERNEL_TARBALL: "kernel-aarch64.tar.gz"
       BOOT_TARGET: "target/boot"
       RPI_VERSION: "1.20220331"
