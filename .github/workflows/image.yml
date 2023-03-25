@@ -53,7 +53,7 @@ jobs:
       KERNEL_VERSION: "v6.2.8-1"
       KERNEL_TARBALL: "kernel-aarch64.tar.gz"
       BOOT_TARGET: "target/boot"
-      RPI_VERSION: "1.20220331"
+      RPI_VERSION: "1.20230317"
 
     steps:
       - name: Checkout
