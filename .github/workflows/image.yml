@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Create a folder as the root taget path
         run: |
@@ -35,7 +35,7 @@ jobs:
           sudo chmod a+r ../rootfs-aarch64.tar.gz
 
       - name: Upload compressed root file system
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: rootfs-aarch64.tar.gz
           path: rootfs-aarch64.tar.gz
@@ -57,7 +57,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Create a raw disk image
         shell: bash
@@ -153,7 +153,7 @@ jobs:
 
       - name: Upload the disk image
         if: startsWith(github.ref, 'refs/tags/') == false
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ env.DISK_IMG }}
           path: ${{ env.DISK_IMG }}
