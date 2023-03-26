@@ -36,7 +36,11 @@ install -D data/network/interfaces $ROOT_TARGET/etc/network/interfaces
 
 echo "alpine-arm64" > $ROOT_TARGET/etc/hostname
 
+echo "Prepare APK repository list"
+cp /etc/apk/repositories $ROOT_TARGET/etc/apk/repositories
+
 echo "Change Root"
+# Enable services
 chroot $ROOT_TARGET rc-update add syslog boot
 chroot $ROOT_TARGET rc-update add networking
 chroot $ROOT_TARGET rc-update add ntpd
