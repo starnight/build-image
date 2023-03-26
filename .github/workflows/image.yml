@@ -10,6 +10,11 @@ jobs:
     strategy:
       matrix:
         arch: [aarch64, riscv64]
+        include:
+          - arch: aarch64
+            distro: alpine_latest
+          - arch: riscv64
+            distro: alpine_edge
     env:
       ROOT_TARGET: "target"
 
@@ -25,7 +30,7 @@ jobs:
         uses: uraimo/run-on-arch-action@v2
         with:
           arch: ${{ matrix.arch }}
-          distro: alpine_latest
+          distro: ${{ matrix.distro }}
           run: |
             uname -a
             ls -l

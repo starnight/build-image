@@ -4,10 +4,12 @@ ROOT_TARGET=$1
 
 cat /etc/os-release
 
+APK_REPO_URL=$(head -n 1 /etc/apk/repositories)
+
 apk add apk-tools-static
 apk.static \
   --arch $(uname -m) \
-  -X http://dl-cdn.alpinelinux.org/alpine/latest-stable/main/ \
+  -X $APK_REPO_URL \
   -U \
   --allow-untrusted \
   --root $ROOT_TARGET \
