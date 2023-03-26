@@ -16,7 +16,16 @@ apk.static \
   --initdb add alpine-base
 
 echo "Have serial console"
-sed -i '/\#ttyS0::respawn:\/sbin\/getty -L ttyS0 115200 vt100/a\ttyAMA0::respawn:\/sbin\/getty -L 0 ttyAMA0 vt100' $ROOT_TARGET/etc/inittab
+PATTERN_STR='\#ttyS0::respawn:\/sbin\/getty -L ttyS0 115200 vt100'
+case $(uname -m) in
+  aarch64)
+    APPEND_STR='\ttyAMA0::respawn:\/sbin\/getty -L 0 ttyAMA0 vt100' ;;
+  riscv64)
+    APPEND_STR='\ttyS0::respawn:\/sbin\/getty -L ttyS0 115200 vt100' ;;
+  *)
+    APPEND_STR=''
+esac
+sed -i "/${PATTERN_STR}/a${APPEND_STR}" $ROOT_TARGET/etc/inittab
 
 echo "Deploy fstab"
 install -D data/fstab $ROOT_TARGET/etc/fstab
