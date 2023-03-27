@@ -32,7 +32,7 @@ Device                          Boot  Start    End Sectors  Size Id Type
 simple-alpine-qemu_aarch64.img1 *      2048 206847  204800  100M  c W95 FAT32 (LBA)
 simple-alpine-qemu_aarch64.img2      206848 262143   55296   27M 83 Linux
 ```
-The 1st partition is the boot partition, but not used.  The 2nd partition holds Root File System.  The layout is according to the platform and case by case actually.
+  The 1st partition is the boot partition, but not used.  The 2nd partition holds Root File System.  The layout is according to the platform and case by case actually.
 4. Run a QEMU aarch64 VM with the RAW disk image and the built kernel image.
 ```
 $ qemu-system-aarch64 \
@@ -44,4 +44,16 @@ $ qemu-system-aarch64 \
 	--append "console=ttyAMA0 root=/dev/vda2 rw rootfstype=ext4" \
 	-hda simple-alpine-qemu_aarch64.img \
 	-serial stdio
+```
+
+The RISC-V 64 bits image can be used in the same way:
+```
+$ qemu-system-riscv64 -smp 4 \
+    -M virt \
+    -m 2G \
+    -kernel <built riscv64 kernel> \
+    -append "root=/dev/vda2 rw rootfstype=ext4" \
+    -drive file=simple-alpine-qemu_riscv64.img,format=raw,id=hd0 \
+    -device virtio-blk-device,drive=hd0 \
+    -serial stdio
 ```
