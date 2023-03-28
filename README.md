@@ -55,5 +55,7 @@ $ qemu-system-riscv64 -smp 4 \
     -append "root=/dev/vda2 rw rootfstype=ext4" \
     -drive file=simple-alpine-qemu_riscv64.img,format=raw,id=hd0 \
     -device virtio-blk-device,drive=hd0 \
+    -netdev user,id=eth0 \
+    -device virtio-net-device,netdev=eth0 \
     -serial stdio
 ```
