@@ -62,7 +62,7 @@ jobs:
       DISK_IMG: "simple-alpine-${{ matrix.platform }}_${{ matrix.arch }}.img"
       ROOTFS_TARBALL: "rootfs-${{ matrix.arch }}.tar.gz"
       ROOT_TARGET: "target"
-      KERNEL_VERSION: "v6.2.8-2"
+      KERNEL_VERSION: "v6.3.1-1"
       KERNEL_TARBALL: "kernel-${{ matrix.arch }}.tar.gz"
       BOOT_TARGET: "target/boot"
 
