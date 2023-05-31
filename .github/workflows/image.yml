@@ -62,7 +62,6 @@ jobs:
       DISK_IMG: "simple-alpine-${{ matrix.platform }}_${{ matrix.arch }}.img"
       ROOTFS_TARBALL: "rootfs-${{ matrix.arch }}.tar.gz"
       ROOT_TARGET: "target"
-      KERNEL_VERSION: "v6.3.1-1"
       KERNEL_TARBALL: "kernel-${{ matrix.arch }}.tar.gz"
       BOOT_TARGET: "target/boot"
 
@@ -124,6 +123,19 @@ jobs:
           PATTERN="ttyAMA0::respawn:\/sbin\/getty -L 0 ttyAMA0 vt100"
           REPLACE="ttyS1::respawn:\/sbin\/getty -L ttyS1 115200 vt100"
           sudo sed -i "s/$PATTERN/$REPLACE/g" etc/inittab
+
+      - name: Checkout build-kernel
+        if: ${{ !startsWith(env.KERNEL_VERSION, 'v') }}
+        uses: actions/checkout@v3
+        with:
+          repository: starnight/build-kernel
+          path: build-kernel
+
+      - name: Get kernel version
+        if: ${{ !startsWith(env.KERNEL_VERSION, 'v') }}
+        working-directory: build-kernel
+        run: |
+          echo "KERNEL_VERSION=$(cat version)" >> $GITHUB_ENV
 
       - name: Download the kernel tarball
         env:
