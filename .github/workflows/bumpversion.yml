@@ -1,0 +1,39 @@
+name: Bump_Version
+
+on:
+  repository_dispatch:
+    types: [bump-kernel]
+
+jobs:
+  bump-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Git environment
+        run: |
+          git config --global user.name ${{ github.actor }}
+          git config --global user.email ${{ github.actor }}@github.com
+
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # Need to fetch everything so that 'git describe' can see the tags
+          fetch-depth: 0
+
+      - name: Bump build-kernel version
+        if: ${{ github.event.action == 'bump-kernel' }}
+        shell: bash
+        run: |
+          git commit --allow-empty -m "Bump kernel tarball version to $KERNEL_VERSION"
+
+          # Have new tag name
+          describe=$(git describe --always --tags --long)
+          IFS='-' read -a ver_arr <<< $describe
+          IFS='.' read -a ver_arr <<< ${ver_arr[0]}
+          tagname="${ver_arr[0]}.${ver_arr[1]}.$((ver_arr[2]+1))"
+
+          git tag -a $tagname -m "Release version $tagname"
+
+          git push origin ${{ github.ref_name }} $tagname
+        env:
+          KERNEL_VERSION: ${{ github.event.client_payload.KERNEL_VERSION }}
