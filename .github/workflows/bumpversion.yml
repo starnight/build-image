@@ -30,16 +30,18 @@ jobs:
           describe=$(git describe --always --tags --long)
           IFS='-' read -a ver_arr <<< $describe
           IFS='.' read -a ver_arr <<< ${ver_arr[0]}
-          tagname="${ver_arr[0]}.${ver_arr[1]}.$((ver_arr[2]+1))"
+          tagname="v${ver_arr[0]}.${ver_arr[1]}.$((ver_arr[2]+1))"
 
           git tag -a $tagname -m "Release version $tagname"
 
           git push origin ${{ github.ref_name }} $tagname
 
-          git checkout tags/$tagname
+          echo "tagname=$tagname\n" >> $GITHUB_OUTPUT
         env:
           KERNEL_VERSION: ${{ github.event.client_payload.KERNEL_VERSION }}
 
       - name: Build for release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: needs.tag.outputs.tagname
         uses: ./.github/workflows/image.yml
+        with:
+          tagname: ${{ needs.tag.outputs.tagname }}

@@ -2,6 +2,13 @@ name: CI
 
 on:
   push:
+  workflow_call:
+    inputs:
+      tagname:
+        description: 'The git tag name for release'
+        default: ''
+        required: true
+        type: string
   workflow_dispatch:
 
 jobs:
@@ -177,20 +184,20 @@ jobs:
           sudo umount ${{ env.ROOT_TARGET }}
 
       - name: Upload the disk image
-        if: startsWith(github.ref, 'refs/tags/') == false
+        if: startsWith(github.ref, 'refs/tags/') == false || startsWith(inputs.tagname, 'v')
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.DISK_IMG }}
           path: ${{ env.DISK_IMG }}
 
       - name: Compress image and calculate its hash
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/')|| startsWith(inputs.tagname, 'v')
         run: |
           xz ${{ env.DISK_IMG }}
           sha512sum ${{ env.DISK_IMG }}.xz > ${{ env.DISK_IMG }}.xz.sha512
 
       - name: Release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || startsWith(inputs.tagname, 'v')
         uses: softprops/action-gh-release@v1
         with:
           files: |
