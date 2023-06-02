@@ -35,5 +35,11 @@ jobs:
           git tag -a $tagname -m "Release version $tagname"
 
           git push origin ${{ github.ref_name }} $tagname
+
+          git checkout tags/$tagname
         env:
           KERNEL_VERSION: ${{ github.event.client_payload.KERNEL_VERSION }}
+
+      - name: Build for release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: ./.github/workflows/image.yml
