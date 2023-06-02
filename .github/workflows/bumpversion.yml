@@ -7,6 +7,8 @@ on:
 jobs:
   bump-version:
     runs-on: ubuntu-latest
+    outputs:
+      tagname: ${{ steps.bump_version.outputs.tagname }}
 
     steps:
       - name: Set up Git environment
@@ -20,7 +22,8 @@ jobs:
           # Need to fetch everything so that 'git describe' can see the tags
           fetch-depth: 0
 
-      - name: Bump build-kernel version
+      - name: Bump version
+        id: bump_version
         if: ${{ github.event.action == 'bump-kernel' }}
         shell: bash
         run: |
@@ -30,18 +33,24 @@ jobs:
           describe=$(git describe --always --tags --long)
           IFS='-' read -a ver_arr <<< $describe
           IFS='.' read -a ver_arr <<< ${ver_arr[0]}
-          tagname="v${ver_arr[0]}.${ver_arr[1]}.$((ver_arr[2]+1))"
+          tagname="${ver_arr[0]}.${ver_arr[1]}.$((ver_arr[2]+1))"
 
           git tag -a $tagname -m "Release version $tagname"
 
           git push origin ${{ github.ref_name }} $tagname
 
-          echo "tagname=$tagname\n" >> $GITHUB_OUTPUT
+          echo "tagname=$tagname" >> $GITHUB_OUTPUT
+
+          ls -al */*
         env:
           KERNEL_VERSION: ${{ github.event.client_payload.KERNEL_VERSION }}
 
-      - name: Build for release
-        if: needs.tag.outputs.tagname
-        uses: ./.github/workflows/image.yml
-        with:
-          tagname: ${{ needs.tag.outputs.tagname }}
+
+  build-for-tag:
+    name: Build for release
+    needs: bump-version
+    if: startsWith(needs.bump-version.outputs.tagname, 'v')
+    uses: ./.github/workflows/image.yml
+    with:
+      tagname: ${{ needs.bump-version.outputs.tagname }}
+    secrets: inherit
