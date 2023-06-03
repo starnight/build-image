@@ -35,7 +35,7 @@ jobs:
           IFS='.' read -a ver_arr <<< ${ver_arr[0]}
           tagname="${ver_arr[0]}.${ver_arr[1]}.$((ver_arr[2]+1))"
 
-          git tag -a $tagname -m "Release version $tagname"
+          git tag -a $tagname -m "Release $tagname with kernel tarball $KERNEL_VERSION"
 
           git push origin ${{ github.ref_name }} $tagname
 
