@@ -1,3 +1,4 @@
 arm_64bit=1
 upstream_kernel=1
+initramfs initramfs-generic followkernel
 enable_uart=1

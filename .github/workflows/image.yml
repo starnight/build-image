@@ -161,6 +161,15 @@ jobs:
           sudo mv boot/dtbs/*/broadcom/* boot/upstream/
           sudo rm -rf boot/dtbs
 
+      - name: Generate initramfs
+        if: ${{ matrix.platform == 'rpi' }}
+        uses: uraimo/run-on-arch-action@v2
+        with:
+          arch: ${{ matrix.arch }}
+          distro: alpine_latest
+          run: |
+            chroot ${{ env.ROOT_TARGET }} mkinitfs -n -o /boot/upstream/initramfs-generic
+
       - name: Download and deploy firmwares from Raspberry Pi
         if: ${{ matrix.platform == 'rpi' }}
         env:
