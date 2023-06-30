@@ -79,7 +79,7 @@ jobs:
       - name: Create a raw disk image
         shell: bash
         run: |
-          dd if=/dev/zero of=${{ env.DISK_IMG }} bs=8M count=16
+          dd if=/dev/zero of=${{ env.DISK_IMG }} bs=8M count=32
           (echo "start=2048, size=100MiB, type=c, bootable"; echo "type=83") | sfdisk ${{ env.DISK_IMG }}
 
           # https://github.com/damianperera/mount-image-action/blob/v1/action.yml#L36
