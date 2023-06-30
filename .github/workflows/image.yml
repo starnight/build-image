@@ -93,8 +93,8 @@ jobs:
           echo "Boot: ${boot}"
           echo "Root: ${root}"
 
-          sudo mkfs.vfat -v ${boot}
-          sudo mkfs.ext4 ${root}
+          sudo mkfs.vfat -n BOOT -v ${boot}
+          sudo mkfs.ext4 -L ROOT ${root}
 
           mkdir ${{ env.ROOT_TARGET }}
           sudo mount -t ext4 ${root} ${{ env.ROOT_TARGET }}

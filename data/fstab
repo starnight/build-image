@@ -1,2 +1,2 @@
-/dev/vda2	/		ext4	rw,relatime	0 0
-/dev/vda1	/boot		vfat	rw,relatime	0 0
+LABEL=ROOT	/		ext4	rw,relatime	0 0
+LABEL=BOOT	/boot		vfat	rw,relatime	0 0
