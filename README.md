@@ -21,18 +21,18 @@ simple-alpine-qemu_aarch64.img
 3. List the partitions of the RAW disk image.
 ```sh
 $ fdisk -l simple-alpine-qemu_aarch64.img
-Disk simple-alpine-qemu_aarch64.img: 128 MiB, 134217728 bytes, 262144 sectors
+Disk simple-alpine-qemu_aarch64.img: 256 MiB, 268435456 bytes, 524288 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
 I/O size (minimum/optimal): 512 bytes / 512 bytes
 Disklabel type: dos
-Disk identifier: 0xbec8bc2b
+Disk identifier: 0x69aba5f7
 
 Device                          Boot  Start    End Sectors  Size Id Type
 simple-alpine-qemu_aarch64.img1 *      2048 206847  204800  100M  c W95 FAT32 (LBA)
-simple-alpine-qemu_aarch64.img2      206848 262143   55296   27M 83 Linux
+simple-alpine-qemu_aarch64.img2      206848 524287  317440  155M 83 Linux
 ```
-  The 1st partition is the boot partition, but not used.  The 2nd partition holds Root File System.  The layout is according to the platform and case by case actually.
+  The 1st partition is the boot partition, but not used.  The 2nd partition holds Root Filesystem.  The layout is according to the platform and case by case actually.
 4. Run a QEMU aarch64 VM with the RAW disk image and the built kernel image.
 ```
 $ qemu-system-aarch64 \
