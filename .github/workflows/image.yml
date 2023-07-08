@@ -213,3 +213,4 @@ jobs:
           files: |
             ${{ env.DISK_IMG }}.xz
             ${{ env.DISK_IMG }}.xz.sha512
+          append_body: true
