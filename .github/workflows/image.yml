@@ -102,7 +102,7 @@ jobs:
           sudo mount -t vfat ${boot} ${{ env.BOOT_TARGET }}
 
       - name: Download the root file system tarball
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.ROOTFS_TARBALL }}
 
