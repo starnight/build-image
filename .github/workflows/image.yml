@@ -34,7 +34,7 @@ jobs:
           mkdir ${{ env.ROOT_TARGET }}
 
       - name: Have ${{ matrix.arch }} environment
-        uses: uraimo/run-on-arch-action@v2
+        uses: uraimo/run-on-arch-action@v3
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
@@ -163,7 +163,7 @@ jobs:
 
       - name: Generate initramfs
         if: ${{ matrix.platform == 'rpi' }}
-        uses: uraimo/run-on-arch-action@v2
+        uses: uraimo/run-on-arch-action@v3
         with:
           arch: ${{ matrix.arch }}
           distro: alpine_latest
