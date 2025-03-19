@@ -34,7 +34,7 @@ mkdir $ROOT_TARGET/boot
 echo "Deploy network config"
 install -D data/network/interfaces $ROOT_TARGET/etc/network/interfaces
 
-echo "alpine-arm64" > $ROOT_TARGET/etc/hostname
+echo "alpine-$(uname -m)" > $ROOT_TARGET/etc/hostname
 
 echo "Prepare APK repository list"
 cp /etc/apk/repositories $ROOT_TARGET/etc/apk/repositories
