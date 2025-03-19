@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/sh
 
 ROOT_TARGET=$1
 
