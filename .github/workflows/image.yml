@@ -50,7 +50,7 @@ jobs:
           sudo chmod a+r ../rootfs-${{ matrix.arch }}.tar.gz
 
       - name: Upload compressed root file system
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rootfs-${{ matrix.arch }}.tar.gz
           path: rootfs-${{ matrix.arch }}.tar.gz
@@ -194,7 +194,7 @@ jobs:
 
       - name: Upload the disk image
         if: startsWith(github.ref, 'refs/tags/') == false || startsWith(inputs.tagname, 'v')
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.DISK_IMG }}
           path: ${{ env.DISK_IMG }}
