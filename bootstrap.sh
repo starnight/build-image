@@ -4,12 +4,12 @@ ROOT_TARGET=$1
 
 cat /etc/os-release
 
-APK_REPO_URL=$(head -n 1 /etc/apk/repositories)
+APK_REPO_URL=$(cat /etc/apk/repositories | sed -e "s/^/-X /g" | tr '\n' ' ')
 
 apk add apk-tools-static
 apk.static \
   --arch $(uname -m) \
-  -X $APK_REPO_URL \
+  $APK_REPO_URL \
   -U \
   --allow-untrusted \
   --root $ROOT_TARGET \
