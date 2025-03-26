@@ -6,6 +6,11 @@ cat /etc/os-release
 
 APK_REPO_URL=$(cat /etc/apk/repositories | sed -e "s/^/-X /g" | tr '\n' ' ')
 
+if [ "$BOOTSTRAP_PACKAGES_FILE" == "" ]
+then
+  BOOTSTRAP_PACKAGES_FILE="bootstrap.packages"
+fi
+
 apk add apk-tools-static
 apk.static \
   --arch $(uname -m) \
@@ -13,7 +18,7 @@ apk.static \
   -U \
   --allow-untrusted \
   --root $ROOT_TARGET \
-  --initdb add alpine-base mkinitfs
+  --initdb add $(cat ${BOOTSTRAP_PACKAGES_FILE} | tr '\n' ' ')
 
 echo "Have serial console"
 PATTERN_STR='\#ttyS0::respawn:\/sbin\/getty -L ttyS0 115200 vt100'
