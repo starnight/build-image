@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ROOT_TARGET=$1
+ROOT_TARGET="target/"
 
 cat /etc/os-release
 
