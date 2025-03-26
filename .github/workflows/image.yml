@@ -41,7 +41,7 @@ jobs:
           run: |
             uname -a
             ls -l
-            sh bootstrap.sh ${{ env.ROOT_TARGET }}
+            sh bootstrap.sh --root-target ${{ env.ROOT_TARGET }}
 
       - name: Package the built root
         working-directory: ${{ env.ROOT_TARGET }}

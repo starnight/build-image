@@ -1,15 +1,28 @@
 #!/bin/sh
 
 ROOT_TARGET="target/"
+BOOTSTRAP_PACKAGES_FILE="bootstrap.packages"
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+        --root-target)
+            ROOT_TARGET="$2"
+            shift 2  # Move past the option and its value
+            ;;
+        --bootstrap-package-file)
+            BOOTSTRAP_PACKAGES_FILE="$2"
+            shift 2
+            ;;
+        *)
+            echo "Error: Unknown option: $1"
+            exit 1
+            ;;
+    esac
+done
 
 cat /etc/os-release
 
 APK_REPO_URL=$(cat /etc/apk/repositories | sed -e "s/^/-X /g" | tr '\n' ' ')
-
-if [ "$BOOTSTRAP_PACKAGES_FILE" == "" ]
-then
-  BOOTSTRAP_PACKAGES_FILE="bootstrap.packages"
-fi
 
 apk add apk-tools-static
 apk.static \
